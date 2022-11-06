@@ -43,4 +43,9 @@ node {
             sh 'scp /var/lib/jenkins/workspace/pipeline-demo/* ubuntu@172.31.10.21:/home/ubuntu'
 
     }
+
+    stage('Kubernetes Deployment using Ansible') {
+        sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.1.110 cd /home/ubuntu'
+        sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.1.110 ansible-playbook ansible.yml'
+    }
 }
