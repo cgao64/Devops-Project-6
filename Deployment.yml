@@ -1,0 +1,21 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: demo_project
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: demo_project
+  template:
+    metadata:
+      labels:
+          app: demo_project
+    spec:
+      containers:
+      - name: demo_project
+        image: cgao64/pipeline-demo
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80

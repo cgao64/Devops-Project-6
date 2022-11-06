@@ -25,14 +25,22 @@ node {
         }
     }    
     
-    stage('Docker Image Tagging') {
+    stage('Push Docker Images to Docker Hub') {
         sshagent(['ansible_demo']) {
             withCredentials([string(credentialsId: 'dockerhub_passwd', variable: 'dockerhub_passwd')])
-                sh "docker login -u cgao64 -p ${dockerhub_passwd}"
-                sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.1.110 docker image tag $JOB_NAME:v1.$BUILD_ID cgao64/$JOB_NAME:latest'
+                sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.1.110 docker login -u cgao64 -p ${dockerhub_passwd}"
                 sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.1.110 docker image push cgao64/$JOB_NAME:latest'
                 sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.1.110 docker image push cgao64/$JOB_NAME:latest'
 
+                sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.1.110 docker image rm cgao64/$JOB_NAME:v1.$BUILD_ID'
+
         }
-    }    
+    }  
+
+    stage('Copy files from Ansible to Kubernetes Server') {
+        sshagent(['kubernetes_server'])
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.10.21'
+            sh 'scp /var/lib/jenkins/workspace/pipeline-demo/* ubuntu@172.31.10.21:/home/ubuntu'
+
+    }
 }
