@@ -10,4 +10,19 @@ node {
             sh 'scp /var/lib/jenkins/workspace/pipline-demo ubuntu@172.31.1.110:/home/ubuntu'
         }
     }
+
+    stage('Docker Build Image') {
+        sshagent(['ansible_demo']) {
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.1.110 cd /home/ubuntu'
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.1.110 docker image build $JOB_NAME:v1.$BUILD_ID .'
+        }
+    }
+    stage('Docker Image Tagging') {
+        sshagent(['ansible_demo']) {
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.1.110 cd /home/ubuntu'
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.1.110 docker image tag $JOB_NAME:v1.$BUILD_ID cgao64/$JOB_NAME:v1.$BUILD_ID'
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.1.110 docker image tag $JOB_NAME:v1.$BUILD_ID cgao64/$JOB_NAME:latest'
+
+        }
+    }    
 }
